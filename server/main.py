@@ -37,9 +37,10 @@ def threaded_client(conn, addr):
     id = str(uuid4())
     for letter in word:
         if letter in guesses:
-            guessedWord += letter
+            guessedWord += letter.upper()
         else:
             guessedWord += "_"
+        guessedWord += " "
     players[str(
         addr)] = f"id:{id}||name:{addr}||tries:{tries}||guesses:{json.dumps(guesses)}||guessedWord:{guessedWord}||done:{done}||timer:{timer}||totalTime:{totalTime}"
     conn.send(str.encode(players[str(addr)]))
@@ -68,9 +69,10 @@ def threaded_client(conn, addr):
                         guessedWord = ""
                         for letter in word:
                             if letter in guesses:
-                                guessedWord += letter
+                                guessedWord += letter.upper()
                             else:
                                 guessedWord += "_"
+                            guessedWord += " "
 
                         if tries == 0:
                             done = True

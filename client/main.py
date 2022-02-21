@@ -64,19 +64,23 @@ class App(Player):
             x = 509
             y += 55
         self.updateUser()
-        self.wordLabel = ttk.Label(root, text=self.guessedWord, font=("Consolas", 25), borderwidth=2, relief="solid", justify=tk.CENTER)
+        self.wordLabel = ttk.Label(root, text=self.guessedWord, font=("Consolas", 25), borderwidth=2, relief="solid", justify="center")
         self.wordLabel.place(x=566, y=573, width=330, height=43)
+        
+        self.triesLabel = ttk.Label(root, text=f"Tries left: {str(self.tries)}", font=("Consolas", 15), borderwidth=2, relief="solid", justify="center")
+        self.triesLabel.place(x=631, y=496, width=200, height=41)
     
     def guessButton(self, alphabet):
         self.guess(alphabet)
         self.updateUser()
         self.wordLabel.config(text=self.guessedWord)
+        self.triesLabel.config(text=f"Tries left: {str(self.tries)}")
         buttonID = self.alphabets.index(alphabet)
         button = self.buttons[buttonID]
         button.config(state=tk.DISABLED)
-        button.config(bg="#d3d3d3")
+        button.config(bg="#e57076")
         if "_" not in self.guessedWord:
-            messagebox.showinfo("You Won", "You Won!")
+            messagebox.showinfo("You Won", "You Won! \nTime Taken: " + str(round(time.time() - self.timer, 2)) + " seconds")
         elif self.tries == 0:
             messagebox.showinfo("You Lost", "You Lost!")
 
