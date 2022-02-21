@@ -69,12 +69,22 @@ class App(Player):
         
         self.triesLabel = ttk.Label(root, text=f"Tries left: {str(self.tries)}", font=("Consolas", 15), borderwidth=2, relief="solid", justify="center")
         self.triesLabel.place(x=631, y=496, width=200, height=41)
+        
+        self.hangmanCanvas = tk.Canvas(root, width=500, height=500, borderwidth=2, relief="solid")
+        self.hangmanCanvas.place(x=92, y=239, width=377, height=377)
+        
+        #draw hangman
+        self.hangmanCanvas.create_rectangle(84, 360, 311, 377, fill="#000000")
+        self.hangmanCanvas.create_rectangle(268, 121, 287, 377, fill="#000000")
+        self.hangmanCanvas.create_rectangle(161, 121, 161+126, 121+17, fill="#000000")
+        self.hangmanCanvas.create_rectangle(161, 121, 161+19, 121+49, fill="#000000")
     
     def guessButton(self, alphabet):
         self.guess(alphabet)
         self.updateUser()
         self.wordLabel.config(text=self.guessedWord)
         self.triesLabel.config(text=f"Tries left: {str(self.tries)}")
+        self.DrawHangman(self.tries)
         buttonID = self.alphabets.index(alphabet)
         button = self.buttons[buttonID]
         button.config(state=tk.DISABLED)
@@ -83,6 +93,20 @@ class App(Player):
             messagebox.showinfo("You Won", "You Won! \nTime Taken: " + str(round(time.time() - self.timer, 2)) + " seconds")
         elif self.tries == 0:
             messagebox.showinfo("You Lost", "You Lost!")
+    
+    def DrawHangman(self, triesLeft):
+        if triesLeft < 6:
+            self.hangmanCanvas.create_oval(140, 154, 140+62, 154+62, fill="#000000")
+        if triesLeft < 5:
+            self.hangmanCanvas.create_rectangle(166, 204, 166+10, 204+80, fill="#000000")
+        if triesLeft < 4:
+            self.hangmanCanvas.create_line(170, 205, 144, 258, fill="#000000", width=10)
+        if triesLeft < 3:
+            self.hangmanCanvas.create_line(170, 205, 202, 258, fill="#000000", width=10)
+        if triesLeft < 2:
+            self.hangmanCanvas.create_line(170, 205+78, 144, 258+78, fill="#000000", width=10)
+        if triesLeft < 1:
+            self.hangmanCanvas.create_line(170, 205+78, 202, 258+78, fill="#000000", width=10)
 
 
 if __name__ == "__main__":
