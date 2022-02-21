@@ -66,7 +66,7 @@ class App(Player):
         self.buttons = []
         for alphabet in self.alphabets:
             self.buttons.append(tk.Button(root, text=alphabet,
-                                     command=lambda x=alphabet: self.guessButton(x)))
+                                     command=lambda x=alphabet: self.guessButton(x), font=("Consolas", 25)))
         for yc in range(0, 4):
             for xc in range(0, 8):
                 if b <= 26:
