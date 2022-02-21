@@ -35,10 +35,16 @@ def threaded_client(conn, addr):
     timer = time.time()
     totalTime = 0
     id = str(uuid4())
+    for letter in word:
+        if letter in guesses:
+            guessedWord += letter
+        else:
+            guessedWord += "_"
     players[str(
         addr)] = f"id:{id}||name:{addr}||tries:{tries}||guesses:{json.dumps(guesses)}||guessedWord:{guessedWord}||done:{done}||timer:{timer}||totalTime:{totalTime}"
     conn.send(str.encode(players[str(addr)]))
     print(word)
+    print(guessedWord)
     while True:
         try:
             data = conn.recv(2048)
@@ -53,7 +59,8 @@ def threaded_client(conn, addr):
                 elif reply[0] == "getAll":
                     conn.send(str.encode(str(players)))
                 elif reply[0] == "guess":
-                    if int(players[str(addr)].split("||")[2].split(":")[1]) > 0 and players[str(addr)].split("||")[5].split(":")[1] != "True":
+                    if (int(players[str(addr)].split("||")[2].split(":")[1]) > 0 
+                        and players[str(addr)].split("||")[5].split(":")[1] != "True"):
                         reply[1] = reply[1].lower()[0]
                         guesses.append(reply[1])
                         if reply[1] not in word:
@@ -64,7 +71,7 @@ def threaded_client(conn, addr):
                                 guessedWord += letter
                             else:
                                 guessedWord += "_"
-                        
+
                         if tries == 0:
                             done = True
                         if guessedWord == word:
@@ -73,7 +80,6 @@ def threaded_client(conn, addr):
                     player = players[str(
                         addr)] = f"id:{id}||name:{addr}||tries:{tries}||guesses:{json.dumps(guesses)}||guessedWord:{guessedWord}||done:{done}||timer:{timer}||totalTime:{totalTime}"
                     conn.send(str.encode(player))
-                
 
         except Exception as e:
             print(e)
