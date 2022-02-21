@@ -34,7 +34,18 @@ class Player:
         self.guesses = json.loads(self.guesses)
         self.timer = float(self.timer)
         self.totalTime = float(self.totalTime)
+
+class Enemy:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
         
+    def updateEnemy(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self.tries = int(self.tries)
+        self.guesses = json.loads(self.guesses)
+        self.timer = float(self.timer)
+        self.totalTime = float(self.totalTime)
+
 class App(Player):
     def __init__(self, root, player: dict):
         root.title("Multiplayer Hangman")
@@ -46,6 +57,7 @@ class App(Player):
                                     (screenwidth - width) / 2, (screenheight - height) / 2)
         root.geometry(alignstr)
         root.resizable(width=False, height=False)
+        self.root = root
         super().__init__(**player)
         x, y = 509, 239
         b=1
@@ -108,8 +120,23 @@ class App(Player):
         if triesLeft < 1:
             self.hangmanCanvas.create_line(170, 205+78, 202, 258+78, fill="#000000", width=10)
 
-
+    def loadEnemies(self):
+        self.enemies = []
+        enemies = net.send("getAll")
+        enemies = enemies.split("|||")[:-1]
+        for enemy in enemies:
+            if enemy.split("||")[0].split(":")[1] != self.id:
+                enemy_ = {}
+                e = enemy.split("||")
+                for i in e:
+                    i = i.split(":")
+                    enemy_[i[0]] = i[1]
+                self.enemies.append(Enemy(**enemy_))
+        print([enemy.__dict__ for enemy in self.enemies])
+        self.root.after(1000, self.loadEnemies)
+            
 if __name__ == "__main__":
     root = tk.Tk()
     app = App(root, getPlayer())
+    app.loadEnemies()
     root.mainloop()

@@ -58,7 +58,11 @@ def threaded_client(conn, addr):
                 if reply[0] == "get":
                     conn.send(str.encode(players[str(addr)]))
                 elif reply[0] == "getAll":
-                    conn.send(str.encode(str(players)))
+                    # print(players)
+                    p = ""
+                    for pl in players.values():
+                        p += pl + "|||"
+                    conn.send(str.encode(str(p)))
                 elif reply[0] == "guess":
                     if (int(players[str(addr)].split("||")[2].split(":")[1]) > 0 
                         and players[str(addr)].split("||")[5].split(":")[1] != "True"):
