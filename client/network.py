@@ -3,7 +3,7 @@ import json
 
 
 class Network:
-    def __init__(self):
+    def __init__(self, name):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         config = json.load(open("config.json"))
         self.host = config["host"]
@@ -18,7 +18,8 @@ class Network:
     def connect(self):
         self.client.connect(self.addr)
         data = self.client.recv(2048).decode()
-        print(data)
+        # self.client.send(str.encode(f"name||{name}"))
+        # print(data)
         return data
 
     def send(self, data):
