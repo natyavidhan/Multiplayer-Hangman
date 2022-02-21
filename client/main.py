@@ -23,7 +23,7 @@ class Player:
     def updateUser(self):
         self.__dict__.update(getPlayer())
         self.tries = int(self.tries)
-        self.guesses = list(self.guesses)
+        self.guesses = json.loads(self.guesses)
         self.timer = float(self.timer)
         self.totalTime = float(self.totalTime)
         print(self.__dict__)
