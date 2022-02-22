@@ -132,7 +132,13 @@ class App(Player):
                     i = i.split(":")
                     enemy_[i[0]] = i[1]
                 self.enemies.append(Enemy(**enemy_))
+                
         print([enemy.__dict__ for enemy in self.enemies])
+        x=92
+        for enemy in self.enemies:
+            enemy.frame = tk.Frame(self.root, borderwidth=2, relief="solid")
+            enemy.frame.place(x=x, y=20, width=175, height=175)
+            x+=(305-92)
         self.root.after(1000, self.loadEnemies)
             
 if __name__ == "__main__":
