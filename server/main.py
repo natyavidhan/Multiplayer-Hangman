@@ -5,6 +5,7 @@ import random
 import json
 import time
 from uuid import uuid4
+from datetime import datetime
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server = "localhost"
@@ -99,5 +100,5 @@ def threaded_client(conn, addr):
 while True:
     if not match:
         conn, addr = s.accept()
-        print("Connected to: ", addr)
+        print("Connected to: ", addr, "at: ", datetime.now())
         start_new_thread(threaded_client, (conn, addr))
