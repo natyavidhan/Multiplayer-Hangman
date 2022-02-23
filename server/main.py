@@ -9,6 +9,7 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+# This class is used to create a server that will listen for connections from clients
 class Server:
     def __init__(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -55,11 +56,18 @@ class App(Server):
         self.kickPlayerButton.place(x = 385, y = 44, width = 100, height = 40)
         
         playersFrame.place(x = 25, y = 25, width = 508, height = 312)
-    
+        
+        self.logLabel = tk.Label(root, text="Log", font=("Consolas", 24))
+        self.logLabel.place(x = 25, y = 376, width = 66, height = 35)
+
+        self.logList = tk.Listbox(root, font=("Consolas", 12), selectmode="NONE")
+        self.logList.place(x = 25, y = 410, width = 948, height = 270)
+        
     def kickPlayer(self):
         player = self.playerList.curselection()
         if player:
             player = self.playerList.get(player)
+            self.log(f"{player} has been kicked")
             del self.players[player]
     
     def entry(self):
@@ -67,6 +75,7 @@ class App(Server):
             if not self.match:
                 conn, addr = self.s.accept()
                 self.playerList.insert(tk.END, str(addr))
+                self.log(f"{addr} has connected")
                 start_new_thread(self.threaded_client, (conn, addr))
                 
     def threaded_client(self, conn, addr):
@@ -143,6 +152,12 @@ class App(Server):
             pass
         playerIndex = self.playerList.get(0, tk.END).index(str(addr))
         self.playerList.delete(playerIndex)
+        self.log(f"{addr} has disconnected")
+        
+    def log(self, message):
+        date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        message = f"[{date}]: {message}"
+        self.logList.insert(tk.END, message)
 
 if __name__ == "__main__":
     root = tk.Tk()
