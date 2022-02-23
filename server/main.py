@@ -98,7 +98,6 @@ class App(Server):
     def entry(self):
         while True:
             conn, addr = self.s.accept()
-            print(self.entryAllowed)
             if self.entryAllowed and len(self.players.keys()) < 5: 
                 self.playerList.insert(tk.END, str(addr))
                 self.log(f"{addr} has connected")
@@ -158,14 +157,15 @@ class App(Server):
                                 else:
                                     guessedWord += "_"
                                 guessedWord += " "
-
+                            showWord = ""
                             if tries == 0:
                                 done = True
+                                showWord += "||word:"+word
                             if guessedWord == word:
                                 done = True
                                 totalTime = time.time() - timer
                         player = self.players[str(
-                            addr)] = f"id:{id}||name:{addr}||tries:{tries}||guesses:{json.dumps(guesses)}||guessedWord:{guessedWord}||done:{done}||timer:{timer}||totalTime:{totalTime}"
+                            addr)] = f"id:{id}||name:{addr}||tries:{tries}||guesses:{json.dumps(guesses)}||guessedWord:{guessedWord}||done:{done}||timer:{timer}||totalTime:{totalTime}"+showWord
                         conn.send(str.encode(player))
 
             except Exception as e:

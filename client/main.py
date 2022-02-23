@@ -114,7 +114,7 @@ class App(Player):
             for button in self.buttons:
                 button.config(state=tk.DISABLED)
         elif self.tries == 0:
-            messagebox.showinfo("You Lost", "You Lost!")
+            messagebox.showinfo("You Lost", "You Lost! \nThe Word was: " + self.word)
     
     def DrawHangman(self, triesLeft):
         if triesLeft < 6:
