@@ -8,10 +8,15 @@ from tkinter import messagebox
 # name = input("Name: ")
 net = Network("name")
 
+#make an error class for connectionclosed
+class ConnectionClosed(Exception):
+    pass
 
 def getPlayer() -> dict:
     player = {}
     p = net.send("get")
+    if p == "[WinError 10053] An established connection was aborted by the software in your host machine":
+        raise ConnectionClosed
     e = p.split("||")
     for i in e:
         i = i.split(":")
@@ -128,6 +133,9 @@ class App(Player):
     def loadEnemies(self):
         self.enemies = []
         enemies = net.send("getAll")
+        if enemies == "[WinError 10053] An established connection was aborted by the software in your host machine":
+            self.root.destroy()
+            return
         enemies = enemies.split("|||")[:-1]
         for enemy in enemies:
             if enemy.split("||")[0].split(":")[1] != self.id:
@@ -137,8 +145,6 @@ class App(Player):
                     i = i.split(":")
                     enemy_[i[0]] = i[1]
                 self.enemies.append(Enemy(**enemy_))
-                
-        print([enemy.__dict__ for enemy in self.enemies])
         x=0
         for child in self.enemiesFrame.winfo_children():
             child.destroy()

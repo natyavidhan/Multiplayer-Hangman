@@ -58,15 +58,15 @@ class App(Server):
     
     def kickPlayer(self):
         player = self.playerList.curselection()
-        print(player)
         if player:
             player = self.playerList.get(player)
+            del self.players[player]
     
     def entry(self):
         while True:
             if not self.match:
                 conn, addr = self.s.accept()
-                self.playerList.insert(tk.END, addr)
+                self.playerList.insert(tk.END, str(addr))
                 start_new_thread(self.threaded_client, (conn, addr))
                 
     def threaded_client(self, conn, addr):
@@ -88,8 +88,9 @@ class App(Server):
             addr)] = f"id:{id}||name:{addr}||tries:{tries}||guesses:{json.dumps(guesses)}||guessedWord:{guessedWord}||done:{done}||timer:{timer}||totalTime:{totalTime}"
         conn.send(str.encode(self.players[str(addr)]))
         print(word)
-        print(guessedWord)
         while True:
+            if str(addr) not in self.players:
+                break
             try:
                 data = conn.recv(2048)
                 reply = data.decode("utf-8")
@@ -136,7 +137,12 @@ class App(Server):
 
         print("Connection Closed")
         conn.close()
-        self.players.pop(str(addr))
+        try:
+            self.players.pop(str(addr))
+        except KeyError:
+            pass
+        playerIndex = self.playerList.get(0, tk.END).index(str(addr))
+        self.playerList.delete(playerIndex)
 
 if __name__ == "__main__":
     root = tk.Tk()
