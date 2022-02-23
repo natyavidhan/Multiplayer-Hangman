@@ -27,7 +27,7 @@ class Server:
         print("Waiting for a connection")
 
         self.players = {}
-        self.match = False
+        self.entryAllowed = False
         self.wordList = open("words.txt", "r").read().split("\n")
 
 class App(Server):
@@ -58,14 +58,36 @@ class App(Server):
         
         playersFrame.place(x = 25, y = 25, width = 508, height = 312)
         
-        self.logLabel = tk.Label(root, text="Log", font=("Consolas", 24))
-        self.logLabel.place(x = 25, y = 376, width = 66, height = 35)
+        logLabel = tk.Label(root, text="Log", font=("Consolas", 24))
+        logLabel.place(x = 25, y = 376, width = 66, height = 35)
 
         self.logList = tk.Listbox(root, font=("Consolas", 12), selectmode="NONE")
         self.logList.place(x = 25, y = 410, width = 948, height = 270)
         
-        self.serverDetails = tk.Label(root, text=f"Server Details \nIP: {self.server} \nPort: {self.port}", font=("Consolas", 16), justify="left")
-        self.serverDetails.place(x = 554, y = 24)
+        logListScrollbar = tk.Scrollbar(root, command=self.logList.yview)
+        logListScrollbar.place(x = 983, y = 410, width=20, height=270)
+        self.logList.config(yscrollcommand=logListScrollbar.set)
+        
+        
+        serverDetails = tk.Label(root, text=f"IP: {self.server} \nPort: {self.port}", font=("Consolas", 16), justify="left")
+        serverDetails.place(x = 554, y = 24)
+        
+        playerEntryFrame = tk.Frame(root, borderwidth=2, relief="solid")
+        
+        playerEntryLabel = tk.Label(playerEntryFrame, text="Player Entry", font=("Consolas", 20))
+        playerEntryLabel.place(x = 0, y = 0, width = 416, height = 35)
+        
+        allowEntryButton = tk.Button(playerEntryFrame, text="Allow", font=("Consolas", 20), command=lambda: self.playerEntry(True))
+        allowEntryButton.place(x = 80, y = 50, width = 120, height = 40)
+        
+        allowEntryButton = tk.Button(playerEntryFrame, text="Stop", font=("Consolas", 20), command=lambda: self.playerEntry(False))
+        allowEntryButton.place(x = 215, y = 50, width = 120, height = 40)
+        
+        playerEntryFrame.place(x = 550, y = 95, width = 420, height = 115)
+    
+    def playerEntry(self, state: bool) -> None:
+        self.entryAllowed = state
+            
     def kickPlayer(self):
         player = self.playerList.curselection()
         if player:
@@ -75,11 +97,14 @@ class App(Server):
     
     def entry(self):
         while True:
-            if not self.match:
-                conn, addr = self.s.accept()
+            conn, addr = self.s.accept()
+            print(self.entryAllowed)
+            if self.entryAllowed and len(self.players.keys()) < 5: 
                 self.playerList.insert(tk.END, str(addr))
                 self.log(f"{addr} has connected")
                 start_new_thread(self.threaded_client, (conn, addr))
+            else:
+                conn.close()
                 
     def threaded_client(self, conn, addr):
         word = random.choice(self.wordList)
