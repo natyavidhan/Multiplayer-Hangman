@@ -12,9 +12,10 @@ from tkinter import messagebox
 
 class Server:
     def __init__(self):
+        config = json.load(open("config.json"))
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server = "localhost"
-        self.port = 5555
+        self.server = config['host']
+        self.port = config['port']
         self.server_ip = socket.gethostbyname(self.server)
 
         try:
