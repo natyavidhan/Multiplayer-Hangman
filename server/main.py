@@ -9,7 +9,7 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-# This class is used to create a server that will listen for connections from clients
+
 class Server:
     def __init__(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -63,6 +63,8 @@ class App(Server):
         self.logList = tk.Listbox(root, font=("Consolas", 12), selectmode="NONE")
         self.logList.place(x = 25, y = 410, width = 948, height = 270)
         
+        self.serverDetails = tk.Label(root, text=f"Server Details \nIP: {self.server} \nPort: {self.port}", font=("Consolas", 16), justify="left")
+        self.serverDetails.place(x = 554, y = 24)
     def kickPlayer(self):
         player = self.playerList.curselection()
         if player:
