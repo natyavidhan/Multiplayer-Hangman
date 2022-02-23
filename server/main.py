@@ -28,10 +28,48 @@ class Server:
         self.match = False
         self.wordList = open("words.txt", "r").read().split("\n")
 
-
+class App(Server):
+    def __init__(self, root):
+        root.title("Multiplayer Hangman Server")
+        width = 1000
+        height = 700
+        screenwidth = root.winfo_screenwidth()
+        screenheight = root.winfo_screenheight()
+        alignstr = '%dx%d+%d+%d' % (width, height,
+                                    (screenwidth - width) / 2, (screenheight - height) / 2)
+        root.geometry(alignstr)
+        root.resizable(width=False, height=False)
+        self.root = root
+        super().__init__()
+        start_new_thread(self.entry, ())
+        
+        playersFrame = tk.Frame(root, borderwidth=2, relief="solid")
+        
+        playerListLabel = tk.Label(playersFrame, text = "Players", font=("Consolas", 30))
+        playerListLabel.place(x = 0, y = 0, width = 504, height = 35)
+        
+        self.playerList = tk.Listbox(playersFrame, font=("Consolas", 20), selectmode="SINGLE")
+        self.playerList.place(x = 18, y = 44, width = 350, height = 250)
+        
+        self.kickPlayerButton = tk.Button(playersFrame, text="Kick", font=("Consolas", 20), command=self.kickPlayer)
+        self.kickPlayerButton.place(x = 385, y = 44, width = 100, height = 40)
+        
+        playersFrame.place(x = 25, y = 25, width = 508, height = 312)
+    
+    def kickPlayer(self):
+        player = self.playerList.curselection()
+        print(player)
+        if player:
+            player = self.playerList.get(player)
+    
+    def entry(self):
+        while True:
+            if not self.match:
+                conn, addr = self.s.accept()
+                self.playerList.insert(tk.END, addr)
+                start_new_thread(self.threaded_client, (conn, addr))
+                
     def threaded_client(self, conn, addr):
-        global players
-
         word = random.choice(self.wordList)
         guesses = []
         done = False
@@ -98,29 +136,7 @@ class Server:
 
         print("Connection Closed")
         conn.close()
-        players.pop(str(addr))
-
-    def entry(self):
-        while True:
-            if not self.match:
-                conn, addr = self.s.accept()
-                print("Connected to: ", addr, "at: ", datetime.now())
-                start_new_thread(self.threaded_client, (conn, addr))
-
-class App(Server):
-    def __init__(self, root):
-        root.title("Multiplayer Hangman Server")
-        width = 1000
-        height = 700
-        screenwidth = root.winfo_screenwidth()
-        screenheight = root.winfo_screenheight()
-        alignstr = '%dx%d+%d+%d' % (width, height,
-                                    (screenwidth - width) / 2, (screenheight - height) / 2)
-        root.geometry(alignstr)
-        root.resizable(width=False, height=False)
-        self.root = root
-        super().__init__()
-        start_new_thread(self.entry, ())
+        self.players.pop(str(addr))
 
 if __name__ == "__main__":
     root = tk.Tk()
