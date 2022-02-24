@@ -1,0 +1,2 @@
+cls
+py main.py

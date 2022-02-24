@@ -10,6 +10,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
+
 class Server:
     def __init__(self):
         config = json.load(open("config.json"))
@@ -27,8 +28,9 @@ class Server:
         print("Waiting for a connection")
 
         self.players = {}
-        self.entryAllowed = False
+        self.entryAllowed = True
         self.wordList = open("words.txt", "r").read().split("\n")
+
 
 class App(Server):
     def __init__(self, root):
@@ -44,67 +46,74 @@ class App(Server):
         self.root = root
         super().__init__()
         start_new_thread(self.entry, ())
-        
-        playersFrame = tk.Frame(root, borderwidth=2, relief="solid")
-        
-        playerListLabel = tk.Label(playersFrame, text = "Players", font=("Consolas", 30))
-        playerListLabel.place(x = 0, y = 0, width = 504, height = 35)
-        
-        self.playerList = tk.Listbox(playersFrame, font=("Consolas", 20), selectmode="SINGLE")
-        self.playerList.place(x = 18, y = 44, width = 350, height = 250)
-        
-        self.kickPlayerButton = tk.Button(playersFrame, text="Kick", font=("Consolas", 20), command=self.kickPlayer)
-        self.kickPlayerButton.place(x = 385, y = 44, width = 100, height = 40)
-        
-        playersFrame.place(x = 25, y = 25, width = 508, height = 312)
-        
-        logLabel = tk.Label(root, text="Log", font=("Consolas", 24))
-        logLabel.place(x = 25, y = 376, width = 66, height = 35)
 
-        self.logList = tk.Listbox(root, font=("Consolas", 12), selectmode="NONE")
-        self.logList.place(x = 25, y = 410, width = 948, height = 270)
-        
+        playersFrame = tk.Frame(root, borderwidth=2, relief="solid")
+
+        playerListLabel = tk.Label(
+            playersFrame, text="Players", font=("Consolas", 30))
+        playerListLabel.place(x=0, y=0, width=504, height=35)
+
+        self.playerList = tk.Listbox(playersFrame, font=(
+            "Consolas", 20), selectmode="SINGLE")
+        self.playerList.place(x=18, y=44, width=350, height=250)
+
+        self.kickPlayerButton = tk.Button(playersFrame, text="Kick", font=(
+            "Consolas", 20), command=self.kickPlayer)
+        self.kickPlayerButton.place(x=385, y=44, width=100, height=40)
+
+        playersFrame.place(x=25, y=25, width=508, height=312)
+
+        logLabel = tk.Label(root, text="Log", font=("Consolas", 24))
+        logLabel.place(x=25, y=376, width=66, height=35)
+
+        self.logList = tk.Listbox(root, font=(
+            "Consolas", 12), selectmode="NONE")
+        self.logList.place(x=25, y=410, width=948, height=270)
+
         logListScrollbar = tk.Scrollbar(root, command=self.logList.yview)
-        logListScrollbar.place(x = 983, y = 410, width=20, height=270)
+        logListScrollbar.place(x=983, y=410, width=20, height=270)
         self.logList.config(yscrollcommand=logListScrollbar.set)
-        
-        
-        serverDetails = tk.Label(root, text=f"IP: {self.server} \nPort: {self.port}", font=("Consolas", 16), justify="left")
-        serverDetails.place(x = 554, y = 24)
-        
+
+        serverDetails = tk.Label(root, text=f"IP: {self.server} \nPort: {self.port}", font=(
+            "Consolas", 16), justify="left")
+        serverDetails.place(x=554, y=24)
+
         playerEntryFrame = tk.Frame(root, borderwidth=2, relief="solid")
-        
-        playerEntryLabel = tk.Label(playerEntryFrame, text="Player Entry", font=("Consolas", 20))
-        playerEntryLabel.place(x = 0, y = 0, width = 416, height = 35)
-        
-        allowEntryButton = tk.Button(playerEntryFrame, text="Allow", font=("Consolas", 20), command=lambda: self.playerEntry(True))
-        allowEntryButton.place(x = 80, y = 50, width = 120, height = 40)
-        
-        allowEntryButton = tk.Button(playerEntryFrame, text="Stop", font=("Consolas", 20), command=lambda: self.playerEntry(False))
-        allowEntryButton.place(x = 215, y = 50, width = 120, height = 40)
-        
-        playerEntryFrame.place(x = 550, y = 95, width = 420, height = 115)
-    
+
+        playerEntryLabel = tk.Label(
+            playerEntryFrame, text="Player Entry", font=("Consolas", 20))
+        playerEntryLabel.place(x=0, y=0, width=416, height=35)
+
+        allowEntryButton = tk.Button(playerEntryFrame, text="Allow", font=(
+            "Consolas", 20), command=lambda: self.playerEntry(True))
+        allowEntryButton.place(x=80, y=50, width=120, height=40)
+
+        allowEntryButton = tk.Button(playerEntryFrame, text="Stop", font=(
+            "Consolas", 20), command=lambda: self.playerEntry(False))
+        allowEntryButton.place(x=215, y=50, width=120, height=40)
+
+        playerEntryFrame.place(x=550, y=95, width=420, height=115)
+
     def playerEntry(self, state: bool) -> None:
         self.entryAllowed = state
-            
+
     def kickPlayer(self):
         player = self.playerList.curselection()
         if player:
             player = self.playerList.get(player)
             self.log(f"{player} has been kicked")
             del self.players[player]
-    
+
     def entry(self):
         while True:
             conn, addr = self.s.accept()
-            if self.entryAllowed and len(self.players.keys()) < 5: 
+            if self.entryAllowed and len(self.players.keys()) < 5:
                 self.playerList.insert(tk.END, str(addr))
                 self.log(f"{addr} has connected")
                 start_new_thread(self.threaded_client, (conn, addr))
             else:
                 conn.close()
-                
+
     def threaded_client(self, conn, addr):
         word = random.choice(self.wordList)
         guesses = []
@@ -144,8 +153,8 @@ class App(Server):
                             p += pl + "|||"
                         conn.send(str.encode(str(p)))
                     elif reply[0] == "guess":
-                        if (int(self.players[str(addr)].split("||")[2].split(":")[1]) > 0 
-                            and self.players[str(addr)].split("||")[5].split(":")[1] != "True"):
+                        if (int(self.players[str(addr)].split("||")[2].split(":")[1]) > 0
+                                and self.players[str(addr)].split("||")[5].split(":")[1] != "True"):
                             reply[1] = reply[1].lower()[0]
                             guesses.append(reply[1])
                             if reply[1] not in word:
@@ -181,11 +190,12 @@ class App(Server):
         playerIndex = self.playerList.get(0, tk.END).index(str(addr))
         self.playerList.delete(playerIndex)
         self.log(f"{addr} has disconnected")
-        
+
     def log(self, message):
         date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         message = f"[{date}]: {message}"
         self.logList.insert(tk.END, message)
+
 
 if __name__ == "__main__":
     root = tk.Tk()
