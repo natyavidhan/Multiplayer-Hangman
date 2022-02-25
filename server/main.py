@@ -199,6 +199,9 @@ class App(Server):
     def startMatch(self) -> None:
         if self.match == None:
             self.match = Match(self.players)
+            
+    def sendToClient(self, conn, data) -> None:
+        conn.send(str.encode(self.packDict(data)))
         
     def threaded_client(self, conn, addr) -> None:
         name = conn.recv(1024).decode("utf-8")
@@ -222,17 +225,17 @@ class App(Server):
                 command, value = reply.split("||")
                 if command == "get":
                     if value == "self":
-                        conn.send(str.encode(self.packDict(self.players[str(addr)])))
+                        self.sendToClient(conn, self.players[str(addr)])
                     elif value == "all":
-                        conn.send(str.encode(self.packDict(self.players)))
+                        self.sendToClient(conn, self.players)
                 elif command == "match":
                     if self.match != None:
                         if value == "getSelf":
-                            conn.send(str.encode(self.packDict(self.match.getplayer(str(addr)))))
+                            self.sendToClient(conn, self.match.getplayer(str(addr)))
                         elif value == "getAll":
-                            conn.send(str.encode(self.packDict(self.match.getplayers())))
-                        elif value == "getmatch":
-                            conn.send(str.encode(self.match.getmatch()))
+                            self.sendToClient(conn, self.match.getplayers())
+                        elif value == "getMatch":
+                            self.sendToClient(conn, self.match.getmatch())
                     else:
                         conn.send(str.encode("None"))
                         
