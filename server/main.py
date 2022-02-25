@@ -21,8 +21,8 @@ class Match:
             player.guessedWord = "".join(["_" for i in range(len(player.word))])
             player.tries = 6
 
-    def assignWord(self):
-        word = random.choice(self.wordlist)
+    def assignWord(self) -> str:
+        return random.choice(self.wordlist)
 
     def checkGuess(self, playerAddr: str, guess: str):
         player = self.players[playerAddr]
@@ -38,21 +38,22 @@ class Match:
                 player.guessedWord += "_"
             player.guessedWord += " "
 
-    def getplayer(self, playerAddr:str) -> dict:
+    def getplayer(self, playerAddr: str) -> dict:
         player = self.players[playerAddr]
         return player
-    
+
     def getAll(self) -> dict:
         return self.players
-    
+
     def getMatch(self) -> dict:
         match = {}
         match["players"] = self.players
         match["start"] = self.start
         return match
 
+
 class Server:
-    def __init__(self) -> None:
+    def __init__(self):
         config = json.load(open("config.json"))
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = config["host"]
@@ -74,7 +75,7 @@ class Server:
 
 
 class App(Server):
-    def __init__(self, root:tk.Tk) -> None:
+    def __init__(self, root: tk.Tk):
         root.title("Multiplayer Hangman Server")
         width = 1000
         height = 700
@@ -151,9 +152,15 @@ class App(Server):
         allowEntryButton.place(x=215, y=50, width=120, height=40)
 
         playerEntryFrame.place(x=550, y=95, width=420, height=115)
+        
+        self.match = None
 
     def playerEntry(self, state: bool) -> None:
         self.entryAllowed = state
+        if state:
+            self.log("Player entry Allowed")
+        else:
+            self.log("Player entry Denied")
 
     def kickPlayer(self) -> None:
         player = self.playerList.curselection()
@@ -172,7 +179,7 @@ class App(Server):
             else:
                 conn.close()
 
-    def loadPlayer(self, playerStr: str) -> dict:
+    def loadDict(self, playerStr: str) -> dict:
         player = playerStr.split("||")
         player_ = {}
         for i in player:
@@ -180,13 +187,17 @@ class App(Server):
             player_[i[0]] = i[1]
         return player_
 
-    def packPlayer(self, playerDict: dict) -> str:
+    def packDict(self, playerDict: dict) -> str:
         playerStr = ""
         for key in playerDict:
             playerStr += f"{key}:{playerDict[key]}"
             playerStr += "||"
         return playerStr[:-2]
 
+    def startMatch(self):
+        if self.match == None:
+            self.match = Match()
+        
     def threaded_client(self, conn, addr) -> None:
         while True:
             if str(addr) not in self.players:
@@ -197,12 +208,27 @@ class App(Server):
                 if not data:
                     conn.send(str.encode("Goodbye"))
                     break
-
+                command, value = reply.split("||")
+                if command == "get":
+                    if value == "self":
+                        conn.send(str.encode(self.packDict(self.players[str(addr)])))
+                    elif value == "all":
+                        conn.send(str.encode(self.packDict(self.players)))
+                elif command == "match":
+                    if self.match != None:
+                        if value == "getSelf":
+                            conn.send(str.encode(self.packDict(self.match.getplayer(str(addr)))))
+                        elif value == "getAll":
+                            conn.send(str.encode(self.packDict(self.match.getplayers())))
+                        elif value == "getmatch":
+                            conn.send(str.encode(self.match.getmatch()))
+                    else:
+                        conn.send(str.encode("None"))
             except Exception as e:
-                print(e)
+                traceback = sys.exc_info()[2]
+                print(traceback)
                 break
 
-        print("Connection Closed")
         conn.close()
 
         try:
@@ -210,11 +236,10 @@ class App(Server):
         except KeyError:
             pass
 
-        playerIndex = self.playerList.get(0, tk.END).index(str(addr))
-        self.playerList.delete(playerIndex)
+        self.playerList.delete(self.playerList.get(0, tk.END).index(str(addr)))
         self.log(f"{addr} has disconnected")
 
-    def log(self, message:str) -> None:
+    def log(self, message: str) -> None:
         date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         message = f"[{date}]: {message}"
         self.logList.insert(tk.END, message)
