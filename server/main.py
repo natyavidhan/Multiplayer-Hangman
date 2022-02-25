@@ -14,12 +14,12 @@ class Match:
         self.start = time.time()
         self.players = players
         self.wordlist = open("words.txt", "r").read().split("\n")
-        for player in self.players.values():
-            player.word = self.assignWord()
-            player.guessed = []
-            player.finished = False
-            player.guessedWord = "".join(["_" for i in range(len(player.word))])
-            player.tries = 6
+        for player in self.players.keys():
+            self.players[player][word] = self.assignWord()
+            self.players[player][guessed] = []
+            self.players[player][finished] = False
+            self.players[player][guessedWord] = "".join(["_" for i in range(len(player.word))])
+            self.players[player][tries] = 6
 
     def assignWord(self) -> str:
         return random.choice(self.wordlist)
@@ -70,8 +70,12 @@ class Server:
 
         self.players = {}
         self.entryAllowed = True
-        self.match = False
+        self.match = None
+        self.matchOn = False
         self.wordList = open("words.txt", "r").read().split("\n")
+        
+    def generateID(self) -> str:
+        return "".join(random.choice("0123456789ABCDEF") for i in range(5))
 
 
 class App(Server):
@@ -172,9 +176,7 @@ class App(Server):
     def entry(self) -> None:
         while True:
             conn, addr = self.s.accept()
-            if self.entryAllowed and len(self.players.keys()) < 5:
-                self.playerList.insert(tk.END, str(addr))
-                self.log(f"{addr} has connected")
+            if self.entryAllowed and len(self.players.keys()) < 5 and not self.matchOn:
                 start_new_thread(self.threaded_client, (conn, addr))
             else:
                 conn.close()
@@ -194,11 +196,20 @@ class App(Server):
             playerStr += "||"
         return playerStr[:-2]
 
-    def startMatch(self):
+    def startMatch(self) -> None:
         if self.match == None:
-            self.match = Match()
+            self.match = Match(self.players)
         
     def threaded_client(self, conn, addr) -> None:
+        name = conn.recv(1024).decode("utf-8")
+        id_ = self.generateID()
+        self.players[str(addr)] = {
+            "id":id_, 
+            "name":name, 
+            "score":0
+        }
+        self.playerList.insert(tk.END, str(f"{name}#{id_}"))
+        self.log(f"{name}#{id_} has connected")
         while True:
             if str(addr) not in self.players:
                 break
@@ -224,6 +235,7 @@ class App(Server):
                             conn.send(str.encode(self.match.getmatch()))
                     else:
                         conn.send(str.encode("None"))
+                        
             except Exception as e:
                 traceback = sys.exc_info()[2]
                 print(traceback)
@@ -237,7 +249,7 @@ class App(Server):
             pass
 
         self.playerList.delete(self.playerList.get(0, tk.END).index(str(addr)))
-        self.log(f"{addr} has disconnected")
+        self.log(f"{name}#{id_} has disconnected")
 
     def log(self, message: str) -> None:
         date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
