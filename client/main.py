@@ -5,8 +5,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
-net = Network("name")
-
+# net = Network("name")
+net = None
 class ConnectionClosed(Exception):
     pass
 
@@ -51,8 +51,37 @@ class Enemy:
         self.timer = float(self.timer)
         self.totalTime = float(self.totalTime)
 
+class App:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Hangman")
+        self.root.geometry("520x245")
+        self.root.resizable(False, False)
+        
+        title = tk.Label(root, text="Multiplayer Hangman", font=("Consolas",26))
+        title.place(x=88, y=35)
+        
+        namelabel = tk.Label(root, text="Name", font=("Consolas", 14))
+        namelabel.place(x=80, y=109)
+        
+        iplabel = tk.Label(root, text="IP", font=("Consolas", 14))
+        iplabel.place(x=80, y=149, width=64)
+        
+        self.nameinput = tk.Entry(root, font=("Consolas", 18))
+        self.nameinput.place(x=164, y=106, width=250, height=33)
+        self.ipInput = tk.Entry(root, font=("Consolas", 18))
+        self.ipInput.place(x=164, y=140, width=250, height=33)
+        
+        joinServerButton = tk.Button(root, text="Join", font=("Consolas", 14), command=self.joinServer)
+        joinServerButton.place(x=233, y=200, width=53, height=33)
+    
+    def joinServer(self):
+        global net
+        ip = self.ipInput.get()
+        name = self.nameinput.get()
+        net = Network(name, ip)
 
-class App(Player):
+class Game(Player):
     def __init__(self, root, player: dict):
         root.title("Multiplayer Hangman | Game")
         width = 1000
@@ -180,6 +209,6 @@ class App(Player):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = App(root, getPlayer())
-    app.loadEnemies()
+    app = App(root)
+    # app.loadEnemies()
     root.mainloop()
