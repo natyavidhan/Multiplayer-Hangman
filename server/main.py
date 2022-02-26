@@ -170,13 +170,17 @@ class App(Server):
         player = self.playerList.curselection()
         if player:
             player = self.playerList.get(player)
-            self.log(f"{player} has been kicked")
-            del self.players[player]
+            for addr in self.players.keys():
+                if self.players[addr]["name"]+"#"+self.players[addr]["id"] == player:
+                    self.log(f"{player} has been kicked")
+                    self.players.pop(addr)
+                    break
 
     def entry(self) -> None:
         while True:
             conn, addr = self.s.accept()
             if self.entryAllowed and len(self.players.keys()) < 5 and not self.matchOn:
+                print(len(self.players.keys()))
                 start_new_thread(self.threaded_client, (conn, addr))
             else:
                 conn.close()
@@ -209,8 +213,10 @@ class App(Server):
         self.players[str(addr)] = {
             "id":id_, 
             "name":name, 
+            "addr":addr,
             "score":0
         }
+        self.sendToClient(conn, self.players[str(addr)])
         self.playerList.insert(tk.END, str(f"{name}#{id_}"))
         self.log(f"{name}#{id_} has connected")
         while True:
@@ -250,8 +256,8 @@ class App(Server):
             self.players.pop(str(addr))
         except KeyError:
             pass
-
-        self.playerList.delete(self.playerList.get(0, tk.END).index(str(addr)))
+        
+        self.playerList.delete(self.playerList.get(0, tk.END).index(f"{name}#{id_}"))
         self.log(f"{name}#{id_} has disconnected")
 
     def log(self, message: str) -> None:

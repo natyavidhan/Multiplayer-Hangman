@@ -69,12 +69,14 @@ class App:
         
         self.nameinput = tk.Entry(root, font=("Consolas", 18))
         self.nameinput.place(x=164, y=106, width=250, height=33)
+        self.nameinput.insert(0, "Player")
         self.ipInput = tk.Entry(root, font=("Consolas", 18))
         self.ipInput.place(x=164, y=140, width=250, height=33)
+        self.ipInput.insert(0, "localhost:5555")
         
         joinServerButton = tk.Button(root, text="Join", font=("Consolas", 14), command=self.joinServer)
         joinServerButton.place(x=233, y=200, width=53, height=33)
-    
+
     def joinServer(self):
         global net
         ip = self.ipInput.get()
