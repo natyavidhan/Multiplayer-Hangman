@@ -2,9 +2,9 @@ import tkinter as tk
 
 
 class Lobby:
-    def __init__(self, root, match, net):
+    def __init__(self, root, net):
         self.root = root
-        self.match = match
+        self.match = None
         self.net = net
         root.title("Multiplayer Hangman | Lobby")
         root.geometry("520x245")
@@ -35,3 +35,15 @@ class Lobby:
                 name = players[i]["name"]
                 score = players[i]["score"]
                 self.PlayerList.insert(tk.END, f"{name} - {score}")
+    
+    def checkMatch(self):
+        match = self.net.send("match||getMatch")
+        if match == "[WinError 10053] An established connection was aborted by the software in your host machine":
+            raise TimeoutError("Connection timed out")
+        elif match == "None":
+            return False
+        else:
+            return True
+            self.match = self.net.send("get||getSelf")
+            self.root.destroy()
+        self.root.after(1000, self.checkMatch)

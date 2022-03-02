@@ -4,6 +4,7 @@ import json
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from lobby import Lobby
 
 # net = Network("name")
 net = None
@@ -220,3 +221,13 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = App(root)
     root.mainloop()
+    if net != None:
+        root = tk.Tk()
+        lobby = Lobby(net, root)
+        lobby.checkMatch()
+        root.mainloop()
+        if lobby.match:
+            root = tk.Tk()
+            game = Game(net, root, lobby.match)
+            game.checkMatch()
+            root.mainloop()
