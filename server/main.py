@@ -18,7 +18,8 @@ class Match:
             self.players[player][word] = self.assignWord()
             self.players[player][guessed] = []
             self.players[player][finished] = False
-            self.players[player][guessedWord] = "".join(["_" for i in range(len(player.word))])
+            self.players[player][guessedWord] = "".join(
+                ["_" for i in range(len(player.word))])
             self.players[player][tries] = 6
 
     def assignWord(self) -> str:
@@ -73,7 +74,7 @@ class Server:
         self.match = None
         self.matchOn = False
         self.wordList = open("words.txt", "r").read().split("\n")
-        
+
     def generateID(self) -> str:
         return "".join(random.choice("0123456789ABCDEF") for i in range(5))
 
@@ -99,7 +100,8 @@ class App(Server):
 
         playersFrame = tk.Frame(root, borderwidth=2, relief="solid")
 
-        playerListLabel = tk.Label(playersFrame, text="Players", font=("Consolas", 30))
+        playerListLabel = tk.Label(
+            playersFrame, text="Players", font=("Consolas", 30))
         playerListLabel.place(x=0, y=0, width=504, height=35)
 
         self.playerList = tk.Listbox(
@@ -117,7 +119,8 @@ class App(Server):
         logLabel = tk.Label(root, text="Log", font=("Consolas", 24))
         logLabel.place(x=25, y=376, width=66, height=35)
 
-        self.logList = tk.Listbox(root, font=("Consolas", 12), selectmode="NONE")
+        self.logList = tk.Listbox(root, font=(
+            "Consolas", 12), selectmode="NONE")
         self.logList.place(x=25, y=410, width=948, height=270)
 
         logListScrollbar = tk.Scrollbar(root, command=self.logList.yview)
@@ -156,7 +159,7 @@ class App(Server):
         allowEntryButton.place(x=215, y=50, width=120, height=40)
 
         playerEntryFrame.place(x=550, y=95, width=420, height=115)
-        
+
         self.match = None
 
     def playerEntry(self, state: bool) -> None:
@@ -185,40 +188,26 @@ class App(Server):
             else:
                 conn.close()
 
-    def loadDict(self, playerStr: str) -> dict:
-        player = playerStr.split("||")
-        player_ = {}
-        for i in player:
-            i = i.split(":")
-            player_[i[0]] = i[1]
-        return player_
-
-    def packDict(self, playerDict: dict) -> str:
-        playerStr = ""
-        for key in playerDict:
-            playerStr += f"{key}:{playerDict[key]}"
-            playerStr += "||"
-        return playerStr[:-2]
-
     def startMatch(self) -> None:
         if self.match == None:
             self.match = Match(self.players)
-            
-    def sendToClient(self, conn, data) -> None:
-        conn.send(str.encode(self.packDict(data)))
-        
+
     def threaded_client(self, conn, addr) -> None:
+        def send(data) -> None:
+            conn.send(str.encode(json.dumps(data)))
+
         name = conn.recv(1024).decode("utf-8")
         id_ = self.generateID()
         self.players[str(addr)] = {
-            "id":id_, 
-            "name":name, 
-            "addr":addr,
-            "score":0
+            "id": id_,
+            "name": name,
+            "addr": addr,
+            "score": 0
         }
         self.sendToClient(conn, self.players[str(addr)])
         self.playerList.insert(tk.END, str(f"{name}#{id_}"))
         self.log(f"{name}#{id_} has connected")
+        
         while True:
             if str(addr) not in self.players:
                 break
@@ -228,23 +217,26 @@ class App(Server):
                 if not data:
                     conn.send(str.encode("Goodbye"))
                     break
+                
                 command, value = reply.split("||")
                 if command == "get":
                     if value == "self":
-                        self.sendToClient(conn, self.players[str(addr)])
+                        send(self.players[str(addr)])
                     elif value == "all":
-                        self.sendToClient(conn, self.players)
+                        send(self.players)
+                        
                 elif command == "match":
                     if self.match != None:
                         if value == "getSelf":
-                            self.sendToClient(conn, self.match.getplayer(str(addr)))
+                            send(self.match.getplayer(str(addr)))
                         elif value == "getAll":
-                            self.sendToClient(conn, self.match.getplayers())
+                            send(conn, self.match.getplayers())
                         elif value == "getMatch":
-                            self.sendToClient(conn, self.match.getmatch())
+                            send(conn, self.match.getmatch())
+                            
                     else:
                         conn.send(str.encode("None"))
-                        
+
             except Exception as e:
                 traceback = sys.exc_info()[2]
                 print(traceback)
@@ -256,8 +248,9 @@ class App(Server):
             self.players.pop(str(addr))
         except KeyError:
             pass
-        
-        self.playerList.delete(self.playerList.get(0, tk.END).index(f"{name}#{id_}"))
+
+        self.playerList.delete(self.playerList.get(
+            0, tk.END).index(f"{name}#{id_}"))
         self.log(f"{name}#{id_} has disconnected")
 
     def log(self, message: str) -> None:

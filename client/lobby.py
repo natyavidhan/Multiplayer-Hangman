@@ -1,5 +1,5 @@
 import tkinter as tk
-
+import json
 
 class Lobby:
     def __init__(self, root, net):
@@ -10,27 +10,21 @@ class Lobby:
         root.geometry("520x245")
 
         label = tk.Label(root, text="Lobby", font=("Consolas", 16))
-        label.place(relx=0.5, rely=0.05, anchor="center")
+        label.place(relx=0.5, rely=0.1, anchor="center")
 
         self.PlayerList = tk.Listbox(root, font=("Consolas", 12))
-        self.PlayerList.place(relx=0.5, rely=0.2, anchor="center")
+        self.PlayerList.place(relx=0.5, rely=0.2, anchor="center", relwidth=0.9, relheight=0.7)
 
         self.loadPlayers()
-
-    def loadString(self, data):
-        return_ = {}
-        for i in data.split("||"):
-            i = i.split(":")
-            return_[i[0]] = i[1]
-        return return_
 
     def loadPlayers(self):
         players = self.net.send("get||all")
         if players == "[WinError 10053] An established connection was aborted by the software in your host machine":
             raise TimeoutError("Connection timed out")
         else:
-            players = self.loadString(players)
+            players = json.loads(players)
             self.PlayerList.delete(0, tk.END)
+            print(players)
             for i in players.keys():
                 name = players[i]["name"]
                 score = players[i]["score"]
