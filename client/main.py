@@ -56,8 +56,3 @@ if __name__ == "__main__":
         lobby = Lobby(root, net)
         lobby.checkMatch()
         root.mainloop()
-        if lobby.match:
-            root = tk.Tk()
-            game = Game(root, lobby.match)
-            game.loadEnemies()
-            root.mainloop()
