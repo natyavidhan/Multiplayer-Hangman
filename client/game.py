@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 import json
+from network import Network
 
-def getPlayer(net) -> dict:
+def getPlayer(net: Network) -> dict:
     player = {}
     p = net.send("get||self")
     if p == "[WinError 10053] An established connection was aborted by the software in your host machine":
@@ -14,8 +15,8 @@ class Player:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
-    def guess(self, guess):
-        res = net.send(f"guess||{guess.lower()}")
+    def guess(self, guess: str):
+        res = self.net.send(f"match||guess:{guess.lower()}")
         self.updateUser()
         return res
 
@@ -36,7 +37,7 @@ class Enemy:
         
         
 class Game(Player):
-    def __init__(self, root, player: dict, net):
+    def __init__(self, root: tk.Tk, player: dict, net: Network):
         root.title("Multiplayer Hangman | Game")
         width = 1000
         height = 670
@@ -88,7 +89,7 @@ class Game(Player):
         self.enemiesFrame = tk.Frame(root)
         self.enemiesFrame.place(x=92, y=20, width=815, height=176)
 
-    def guessButton(self, alphabet):
+    def guessButton(self, alphabet: str):
         self.guess(alphabet)
         self.updateUser()
         self.wordLabel.config(text=self.guessedWord)
@@ -109,7 +110,7 @@ class Game(Player):
             for button in self.buttons:
                 button.config(state=tk.DISABLED)
 
-    def DrawHangman(self, triesLeft):
+    def DrawHangman(self, triesLeft: int):
         if triesLeft < 6:
             self.hangmanCanvas.create_oval(
                 140, 154, 140+62, 154+62, fill="#000000")

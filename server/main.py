@@ -27,17 +27,20 @@ class Match:
 
     def checkGuess(self, playerAddr: str, guess: str):
         player = self.players[playerAddr]
-        player.guessed.append(guess)
-        if guess not in player.word:
-            player.tries -= 1
+        print(player)
+        if "_" in player["guessedWord"]:
+            player["guessed"].append(guess)
+            if guess not in player["word"]:
+                player["tries"] -= 1
 
-        player.guessedWord = ""
-        for letter in player.word:
-            if letter in player.guessed:
-                player.guessedWord += letter.upper()
-            else:
-                player.guessedWord += "_"
-            player.guessedWord += " "
+            player["guessedWord"] = ""
+            for letter in player["word"]:
+                if letter in player["guessed"]:
+                    player["guessedWord"] += letter.upper()
+                else:
+                    player["guessedWord"] += "_"
+                player["guessedWord"] += " "
+        return player
 
     def getplayer(self, playerAddr: str) -> dict:
         player = self.players[playerAddr]
@@ -264,7 +267,9 @@ class App(Server):
                             send(json.dumps(self.match.getAll()))
                         elif value == "getMatch":
                             send(json.dumps(self.match.getMatch()))
-                            
+                        elif value.startswith("guess"):
+                            g = value.split(":")
+                            send(json.dumps(self.match.checkGuess(str(addr), g[1])))
                     else:
                         conn.send(str.encode("None"))
 
