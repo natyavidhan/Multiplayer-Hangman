@@ -15,12 +15,12 @@ class Match:
         self.players = players
         self.wordlist = open("words.txt", "r").read().split("\n")
         for player in self.players.keys():
-            self.players[player][word] = self.assignWord()
-            self.players[player][guessed] = []
-            self.players[player][finished] = False
-            self.players[player][guessedWord] = "".join(
-                ["_" for i in range(len(player.word))])
-            self.players[player][tries] = 6
+            self.players[player]["word"] = self.assignWord()
+            self.players[player]["guessed"] = []
+            self.players[player]["finished"] = False
+            self.players[player]["guessedWord"] = "".join(
+                ["_" for i in range(len(self.players[player]["word"]))])
+            self.players[player]["tries"] = 6
 
     def assignWord(self) -> str:
         return random.choice(self.wordlist)
@@ -169,9 +169,9 @@ class App(Server):
 
         matchStartButton = tk.Button(
             matchButtonsFrame,
-            text="Allow",
+            text="Start",
             font=("Consolas", 20),
-            command=lambda: self.playerEntry(True),
+            command=lambda: self.matchStart(True),
         )
         matchStartButton.place(x=80, y=50, width=120, height=40)
 
@@ -179,7 +179,7 @@ class App(Server):
             matchButtonsFrame,
             text="Stop",
             font=("Consolas", 20),
-            command=lambda: self.playerEntry(False),
+            command=lambda: self.matchStart(False),
         )
         matchStopButton.place(x=215, y=50, width=120, height=40)
 
@@ -193,6 +193,13 @@ class App(Server):
             self.log("Player entry Allowed")
         else:
             self.log("Player entry Denied")
+            
+    def matchStart(self, start: bool = True) -> None:
+        self.matchOn = start
+        if start:
+            self.match = Match(self.players)
+        else:
+            self.match = None
 
     def kickPlayer(self) -> None:
         player = self.playerList.curselection()
@@ -250,7 +257,9 @@ class App(Server):
                         send(self.players)
                         
                 elif command == "match":
+                    print("match")
                     if self.match != None:
+                        print("match not none")
                         if value == "getSelf":
                             send(self.match.getplayer(str(addr)))
                         elif value == "getAll":
