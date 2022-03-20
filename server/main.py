@@ -160,6 +160,31 @@ class App(Server):
 
         playerEntryFrame.place(x=550, y=95, width=420, height=115)
 
+        matchButtonsFrame = tk.Frame(root, borderwidth=2, relief="solid")
+
+        matchButtonsLabel = tk.Label(
+            matchButtonsFrame, text="Match Functions", font=("Consolas", 20)
+        )
+        matchButtonsLabel.place(x=0, y=0, width=416, height=35)
+
+        matchStartButton = tk.Button(
+            matchButtonsFrame,
+            text="Allow",
+            font=("Consolas", 20),
+            command=lambda: self.playerEntry(True),
+        )
+        matchStartButton.place(x=80, y=50, width=120, height=40)
+
+        matchStopButton = tk.Button(
+            matchButtonsFrame,
+            text="Stop",
+            font=("Consolas", 20),
+            command=lambda: self.playerEntry(False),
+        )
+        matchStopButton.place(x=215, y=50, width=120, height=40)
+
+        matchButtonsFrame.place(x=550, y=225, width=420, height=115)
+        
         self.match = None
 
     def playerEntry(self, state: bool) -> None:
