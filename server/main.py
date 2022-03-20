@@ -27,7 +27,6 @@ class Match:
 
     def checkGuess(self, playerAddr: str, guess: str):
         player = self.players[playerAddr]
-        print(player)
         if "_" in player["guessedWord"]:
             player["guessed"].append(guess)
             if guess not in player["word"]:
@@ -40,6 +39,10 @@ class Match:
                 else:
                     player["guessedWord"] += "_"
                 player["guessedWord"] += " "
+        else:
+            player["finished"] = True
+            player["finishedTime"] = time.time()
+        print(player)
         return player
 
     def getplayer(self, playerAddr: str) -> dict:

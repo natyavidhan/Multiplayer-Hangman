@@ -99,14 +99,11 @@ class Game(Player):
         button = self.buttons[buttonID]
         button.config(state=tk.DISABLED)
         button.config(bg="#e57076")
+        print(self.guessedWord)
         if "_" not in self.guessedWord:
-            messagebox.showinfo("You Won", "You Won! \nTime Taken: " +
-                                str(round(time.time() - self.timer, 2)) + " seconds")
             for button in self.buttons:
                 button.config(state=tk.DISABLED)
         elif self.tries == 0:
-            messagebox.showinfo(
-                "You Lost", "You Lost! \nThe Word was: " + self.word)
             for button in self.buttons:
                 button.config(state=tk.DISABLED)
 
