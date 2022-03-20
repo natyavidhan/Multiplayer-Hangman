@@ -17,7 +17,7 @@ class App:
         self.root.resizable(False, False)
 
         title = tk.Label(root, text="Multiplayer Hangman",
-                         font=("Consolas", 26))
+                        font=("Consolas", 26))
         title.place(x=88, y=35)
 
         namelabel = tk.Label(root, text="Name", font=("Consolas", 14))

@@ -52,11 +52,11 @@ class Game(Player):
         x, y = 509, 239
         b = 1
         self.alphabets = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-                          "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+                        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
         self.buttons = []
         for alphabet in self.alphabets:
             self.buttons.append(tk.Button(root, text=alphabet,
-                                          command=lambda x=alphabet: self.guessButton(x), font=("Consolas", 25)))
+                                        command=lambda x=alphabet: self.guessButton(x), font=("Consolas", 25)))
         for yc in range(0, 4):
             for xc in range(0, 8):
                 if b <= 26:

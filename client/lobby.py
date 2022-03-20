@@ -22,7 +22,7 @@ class Lobby:
     def loadPlayers(self):
         players = self.net.send("get||all")
         if players == "[WinError 10053] An established connection was aborted by the software in your host machine":
-            pass
+            self.root.destroy()
         else:
             players = json.loads(players)
             self.PlayerList.delete(0, tk.END)
