@@ -1,7 +1,8 @@
 import tkinter as tk
+from tkinter import ttk
 import json
 
-def getPlayer() -> dict:
+def getPlayer(net) -> dict:
     player = {}
     p = net.send("get||self")
     if p == "[WinError 10053] An established connection was aborted by the software in your host machine":
@@ -19,11 +20,9 @@ class Player:
         return res
 
     def updateUser(self):
-        self.__dict__.update(getPlayer())
+        self.__dict__.update(getPlayer(self.net))
         self.tries = int(self.tries)
-        self.guesses = json.loads(self.guesses)
-        self.timer = float(self.timer)
-        self.totalTime = float(self.totalTime)
+        self.guesses = list(self.guessed)
 
 
 class Enemy:
@@ -33,11 +32,11 @@ class Enemy:
     def updateEnemy(self, **kwargs):
         self.__dict__.update(kwargs)
         self.tries = int(self.tries)
-        self.guesses = json.loads(self.guessed)
+        self.guesses = list(self.guessed)
         
         
 class Game(Player):
-    def __init__(self, root, player: dict):
+    def __init__(self, root, player: dict, net):
         root.title("Multiplayer Hangman | Game")
         width = 1000
         height = 670
@@ -48,6 +47,7 @@ class Game(Player):
         root.geometry(alignstr)
         root.resizable(width=False, height=False)
         self.root = root
+        player['net'] = net
         super().__init__(**player)
         x, y = 509, 239
         b = 1

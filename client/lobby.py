@@ -40,8 +40,9 @@ class Lobby:
         elif match == "None":
             pass
         else:
-            self.match = self.net.send("get||getSelf")
+            self.match = self.net.send("match||getSelf")
+            self.match = json.loads(self.match)
             root = tk.Tk()
-            game = Game(root, self.match)
+            game = Game(root, self.match, self.net)
             root.mainloop()
         self.root.after(1000, self.checkMatch)

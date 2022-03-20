@@ -257,22 +257,20 @@ class App(Server):
                         send(self.players)
                         
                 elif command == "match":
-                    print("match")
                     if self.match != None:
-                        print("match not none")
                         if value == "getSelf":
                             send(self.match.getplayer(str(addr)))
                         elif value == "getAll":
-                            send(conn, self.match.getplayers())
+                            send(json.dumps(self.match.getAll()))
                         elif value == "getMatch":
-                            send(conn, self.match.getmatch())
+                            send(json.dumps(self.match.getMatch()))
                             
                     else:
                         conn.send(str.encode("None"))
 
             except Exception as e:
                 traceback = sys.exc_info()[2]
-                print(traceback)
+                print(e)
                 break
 
         conn.close()
