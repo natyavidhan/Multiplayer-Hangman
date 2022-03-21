@@ -39,11 +39,11 @@ class Match:
                 else:
                     player["guessedWord"] += "_"
                 player["guessedWord"] += " "
-        else:
-            player["finished"] = True
-            player["finishedTime"] = time.time()
-        print(player)
-        return player
+            if "_" not in player["guessedWord"]:
+                self.players[playerAddr]["finished"] = True
+                self.players[playerAddr]["finishedTime"] = time.time()
+        print(self.players[playerAddr])
+        return self.players[playerAddr]
 
     def getplayer(self, playerAddr: str) -> dict:
         player = self.players[playerAddr]
@@ -273,6 +273,7 @@ class App(Server):
                         elif value.startswith("guess"):
                             g = value.split(":")
                             send(json.dumps(self.match.checkGuess(str(addr), g[1])))
+                        print(self.match.getplayer(str(addr)))
                     else:
                         conn.send(str.encode("None"))
 
