@@ -190,7 +190,7 @@ class App(Server):
         matchStopButton.place(x=215, y=50, width=120, height=40)
 
         matchButtonsFrame.place(x=550, y=225, width=420, height=115)
-        
+
         self.match = None
 
     def playerEntry(self, state: bool) -> None:
@@ -199,7 +199,7 @@ class App(Server):
             self.log("Player entry Allowed")
         else:
             self.log("Player entry Denied")
-            
+
     def matchStart(self, start: bool = True) -> None:
         self.matchOn = start
         if start:
@@ -244,7 +244,7 @@ class App(Server):
         send(self.players[str(addr)])
         self.playerList.insert(tk.END, str(f"{name}#{id_}"))
         self.log(f"{name}#{id_} has connected")
-        
+
         while True:
             if str(addr) not in self.players:
                 break
@@ -254,14 +254,14 @@ class App(Server):
                 if not data:
                     conn.send(str.encode("Goodbye"))
                     break
-                
+
                 command, value = reply.split("||")
                 if command == "get":
                     if value == "self":
                         send(self.players[str(addr)])
                     elif value == "all":
                         send(self.players)
-                        
+
                 elif command == "match":
                     if self.match != None:
                         if value == "getSelf":
@@ -272,7 +272,8 @@ class App(Server):
                             send(json.dumps(self.match.getMatch()))
                         elif value.startswith("guess"):
                             g = value.split(":")
-                            send(json.dumps(self.match.checkGuess(str(addr), g[1])))
+                            send(json.dumps(
+                                self.match.checkGuess(str(addr), g[1])))
                         print(self.match.getplayer(str(addr)))
                     else:
                         conn.send(str.encode("None"))

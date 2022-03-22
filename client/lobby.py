@@ -2,6 +2,7 @@ import tkinter as tk
 import json
 from game import Game
 
+
 class Lobby:
     def __init__(self, root, net):
         self.root = root
@@ -15,7 +16,8 @@ class Lobby:
         label.place(relx=0.5, rely=0.1, anchor="center")
 
         self.PlayerList = tk.Listbox(root, font=("Consolas", 12))
-        self.PlayerList.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.9, relheight=0.5)
+        self.PlayerList.place(relx=0.5, rely=0.5,
+                                anchor="center", relwidth=0.9, relheight=0.5)
 
         self.loadPlayers()
 
@@ -30,7 +32,7 @@ class Lobby:
                 name = players[i]["name"]
                 score = players[i]["score"]
                 self.PlayerList.insert(tk.END, f"{name} - {score}")
-    
+
     def checkMatch(self):
         self.loadPlayers()
         match = self.net.send("match||getMatch")

@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 import json
-import ast
 from network import Network
+
 
 def getPlayer(net: Network) -> dict:
     player = {}
@@ -35,8 +35,8 @@ class Enemy:
         self.__dict__.update(kwargs)
         self.tries = int(self.tries)
         self.guesses = list(self.guessed)
-        
-        
+
+
 class Game(Player):
     def __init__(self, root: tk.Tk, player: dict, net: Network):
         root.title("Multiplayer Hangman | Game")
@@ -54,11 +54,11 @@ class Game(Player):
         x, y = 509, 239
         b = 1
         self.alphabets = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-                        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+                          "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
         self.buttons = []
         for alphabet in self.alphabets:
             self.buttons.append(tk.Button(root, text=alphabet,
-                                        command=lambda x=alphabet: self.guessButton(x), font=("Consolas", 25)))
+                                          command=lambda x=alphabet: self.guessButton(x), font=("Consolas", 25)))
         for yc in range(0, 4):
             for xc in range(0, 8):
                 if b <= 26:
