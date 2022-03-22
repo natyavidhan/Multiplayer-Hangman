@@ -129,10 +129,15 @@ class Game(Player):
 
     def loadEnemies(self):
         self.enemies = []
-        enemies = net.send("match||getAll")
+        enemies = self.net.send("match||getAll")
         if enemies == "[WinError 10053] An established connection was aborted by the software in your host machine":
             self.root.destroy()
             return
+        elif enemies == "None":
+            from lobby import Lobby
+            root = tk.Tk()
+            lobby = Lobby(root, self.net)
+            root.mainloop()
         enemies = json.loads(enemies).values()
         for enemy in enemies:
             if enemy['id'] != self.id:

@@ -42,7 +42,9 @@ class Lobby:
         else:
             self.match = self.net.send("match||getSelf")
             self.match = json.loads(self.match)
+            self.root.destroy()
             root = tk.Tk()
             game = Game(root, self.match, self.net)
+            game.loadEnemies()
             root.mainloop()
         self.root.after(1000, self.checkMatch)
