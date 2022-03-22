@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import json
+import ast
 from network import Network
 
 def getPlayer(net: Network) -> dict:
@@ -134,14 +135,15 @@ class Game(Player):
             self.root.destroy()
             return
         elif enemies == "None":
+            self.root.destroy()
             from lobby import Lobby
             root = tk.Tk()
             lobby = Lobby(root, self.net)
             root.mainloop()
-        enemies = json.loads(enemies).values()
+        enemies = json.loads(json.loads(enemies)).values()
         for enemy in enemies:
             if enemy['id'] != self.id:
-                self.enemies.append(Enemy(**enemy_))
+                self.enemies.append(Enemy(**enemy))
         x = 0
         for child in self.enemiesFrame.winfo_children():
             child.destroy()
