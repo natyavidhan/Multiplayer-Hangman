@@ -129,7 +129,21 @@ class Game(Player):
             self.hangmanCanvas.create_line(
                 170, 205+78, 202, 258+78, fill="#000000", width=10)
 
+    def check_match(self):
+        data = self.net.send("match||over")
+        data = True if data == "True" else False
+        if data:
+            result = self.net.send("match||getAll")
+            result = json.loads(result)
+            resultStr = ""
+            for player in result.values():
+                index = result.values().index(player)
+                resultStr += f"{index+1}. {player['name']} - {player['score']}\n"
+            resultStr = "Winners\n:"+resultStr[:-1]
+            messagebox.showinfo( "Match Over", resultStr)
+
     def loadEnemies(self):
+        self.check_match()
         self.enemies = []
         enemies = self.net.send("match||getAll")
         if enemies == "[WinError 10053] An established connection was aborted by the software in your host machine":
@@ -140,6 +154,7 @@ class Game(Player):
             from lobby import Lobby
             root = tk.Tk()
             lobby = Lobby(root, self.net)
+            lobby.checkMatch()
             root.mainloop()
         enemies = json.loads(enemies).values()
         for enemy in enemies:
@@ -161,16 +176,3 @@ class Game(Player):
             enemy.hangmanFrame.place(x=x, y=0, width=177, height=177)
             x += (305-92)
         self.root.after(1000, self.loadEnemies)
-
-    def check_match(self):
-        data = self.net.send("match||over")
-        data = True if data == "True" else False
-        if data:
-            result = self.net.send("match||getAll")
-            result = json.loads(result)
-            resultStr = ""
-            for player in result.values():
-                index = result.values().index(player)
-                resultStr += f"{index+1}. {player['name']} - {player['score']}\n"
-            resultStr = "Winners\n:"+resultStr[:-1]
-            messagebox.showinfo( "Match Over", resultStr)
