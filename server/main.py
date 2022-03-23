@@ -10,10 +10,13 @@ import tkinter as tk
 
 
 class Match:
-    def __init__(self, players: dict):
+    def __init__(self, players: dict, root: tk.Tk):
         self.start = time.time()
         self.players = players
+        self.finished = []
         self.wordlist = open("words.txt", "r").read().split("\n")
+        self.over = False
+        self.root = root
         for player in self.players.keys():
             self.players[player]["word"] = self.assignWord()
             self.players[player]["guessed"] = []
@@ -33,7 +36,6 @@ class Match:
             player["guessed"].append(guess)
             if guess not in player["word"]:
                 player["tries"] -= 1
-
             player["guessedWord"] = ""
             for letter in player["word"]:
                 if letter in player["guessed"]:
@@ -59,6 +61,14 @@ class Match:
         match["players"] = self.players
         match["start"] = self.start
         return match
+
+    def check_match(self):
+        for player in self.players.keys():
+            if self.players[player]["finished"]:
+                self.finished.append(player)
+        if len(self.finished) == len(self.players):
+            self.over = True
+        self.root.after(100, self.check_match)
 
 
 class Server:
@@ -205,9 +215,12 @@ class App(Server):
     def matchStart(self, start: bool = True) -> None:
         self.matchOn = start
         if start:
-            self.match = Match(self.players)
+            self.match = Match(self.players, self.root)
+            self.log("Match Started")
+            self.match.check_match()
         else:
             self.match = None
+            self.log("Match Stopped")
 
     def kickPlayer(self) -> None:
         player = self.playerList.curselection()
@@ -226,10 +239,6 @@ class App(Server):
                 start_new_thread(self.threaded_client, (conn, addr))
             else:
                 conn.close()
-
-    def startMatch(self) -> None:
-        if self.match == None:
-            self.match = Match(self.players)
 
     def threaded_client(self, conn, addr) -> None:
         def send(data) -> None:
@@ -276,6 +285,8 @@ class App(Server):
                             g = value.split(":")
                             send(json.dumps(
                                 self.match.checkGuess(str(addr), g[1])))
+                        elif value == "over":
+                            send(json.dumps(self.match.over))
                         print(self.match.getplayer(str(addr)))
                     else:
                         conn.send(str.encode("None"))
@@ -300,7 +311,7 @@ class App(Server):
         date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         message = f"[{date}]: {message}"
         self.logList.insert(tk.END, message)
-
+        
 
 if __name__ == "__main__":
     root = tk.Tk()
