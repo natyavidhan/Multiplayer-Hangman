@@ -23,7 +23,9 @@ class Match:
             self.players[player]["tries"] = 6
 
     def assignWord(self) -> str:
-        return random.choice(self.wordlist)
+        word = random.choice(self.wordlist)
+        self.wordlist.remove(word)
+        return word
 
     def checkGuess(self, playerAddr: str, guess: str):
         player = self.players[playerAddr]
