@@ -1,5 +1,5 @@
 import tkinter as tk
-from tk import messagebox
+from tkinter import messagebox
 from tkinter import ttk
 import json
 from network import Network
