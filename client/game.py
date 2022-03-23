@@ -1,4 +1,5 @@
 import tkinter as tk
+from tk import messagebox
 from tkinter import ttk
 import json
 from network import Network
@@ -54,11 +55,11 @@ class Game(Player):
         x, y = 509, 239
         b = 1
         self.alphabets = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-                          "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+                        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
         self.buttons = []
         for alphabet in self.alphabets:
             self.buttons.append(tk.Button(root, text=alphabet,
-                                          command=lambda x=alphabet: self.guessButton(x), font=("Consolas", 25)))
+                                            command=lambda x=alphabet: self.guessButton(x), font=("Consolas", 25)))
         for yc in range(0, 4):
             for xc in range(0, 8):
                 if b <= 26:
@@ -140,7 +141,7 @@ class Game(Player):
             root = tk.Tk()
             lobby = Lobby(root, self.net)
             root.mainloop()
-        enemies = json.loads(json.loads(enemies)).values()
+        enemies = json.loads(enemies).values()
         for enemy in enemies:
             if enemy['id'] != self.id:
                 self.enemies.append(Enemy(**enemy))
@@ -160,3 +161,16 @@ class Game(Player):
             enemy.hangmanFrame.place(x=x, y=0, width=177, height=177)
             x += (305-92)
         self.root.after(1000, self.loadEnemies)
+
+    def check_match(self):
+        data = self.net.send("match||over")
+        data = True if data == "True" else False
+        if data:
+            result = self.net.send("match||getAll")
+            result = json.loads(result)
+            resultStr = ""
+            for player in result.values():
+                index = result.values().index(player)
+                resultStr += f"{index+1}. {player['name']} - {player['score']}\n"
+            resultStr = "Winners\n:"+resultStr[:-1]
+            messagebox.showinfo( "Match Over", resultStr)

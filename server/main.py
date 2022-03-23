@@ -278,16 +278,14 @@ class App(Server):
                         if value == "getSelf":
                             send(self.match.getplayer(str(addr)))
                         elif value == "getAll":
-                            send(json.dumps(self.match.getAll()))
+                            send(self.match.getAll())
                         elif value == "getMatch":
-                            send(json.dumps(self.match.getMatch()))
+                            send(self.match.getMatch())
                         elif value.startswith("guess"):
                             g = value.split(":")
-                            send(json.dumps(
-                                self.match.checkGuess(str(addr), g[1])))
+                            send(self.match.checkGuess(str(addr), g[1]))
                         elif value == "over":
-                            send(json.dumps(self.match.over))
-                        print(self.match.getplayer(str(addr)))
+                            send(self.match.over)
                     else:
                         conn.send(str.encode("None"))
 
