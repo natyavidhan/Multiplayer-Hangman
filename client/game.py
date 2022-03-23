@@ -90,6 +90,7 @@ class Game(Player):
             161, 121, 161+19, 121+49, fill="#000000")
         self.enemiesFrame = tk.Frame(root)
         self.enemiesFrame.place(x=92, y=20, width=815, height=176)
+        self.matchEnd = False
 
     def guessButton(self, alphabet: str):
         self.guess(alphabet)
@@ -131,16 +132,24 @@ class Game(Player):
 
     def check_match(self):
         data = self.net.send("match||over")
-        data = True if data == "True" else False
+        print(data)
+        data = True if data == "true" else False
+        print(data)
         if data:
-            result = self.net.send("match||getAll")
-            result = json.loads(result)
-            resultStr = ""
-            for player in result.values():
-                index = result.values().index(player)
-                resultStr += f"{index+1}. {player['name']} - {player['score']}\n"
-            resultStr = "Winners\n:"+resultStr[:-1]
-            messagebox.showinfo( "Match Over", resultStr)
+            if not self.matchEnd:
+                result = self.net.send("match||getAll")
+                match = self.net.send("match||getMatch")
+                result = json.loads(result)
+                match = json.loads(match)
+                resultStr = ""
+                for player in result.values():
+                    index = list(result.values()).index(player)
+                    resultStr += f"{index+1}. {player['name']}#{player['id']} - {round(float(player['finishedTime'])-float(match['start']), 3)}\n"
+                resultStr = "Winners:\n"+resultStr[:-1]
+                self.matchEnd = True
+                messagebox.showinfo( "Match Over", resultStr)
+        else:
+            self.matchEnd = False
 
     def loadEnemies(self):
         self.check_match()

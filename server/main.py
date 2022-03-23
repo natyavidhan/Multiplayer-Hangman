@@ -64,6 +64,7 @@ class Match:
 
     def check_match(self):
         for player in self.players.keys():
+            print(self.players[player])
             if self.players[player]["finished"]:
                 self.finished.append(player)
         if len(self.finished) == len(self.players):
