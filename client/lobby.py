@@ -39,9 +39,7 @@ class Lobby:
         if match == "[WinError 10053] An established connection was aborted by the software in your host machine":
             self.root.destroy()
             raise TimeoutError("Connection timed out")
-        elif match == "None":
-            pass
-        else:
+        elif match != "None":
             self.match = self.net.send("match||getSelf")
             self.match = json.loads(self.match)
             self.root.destroy()

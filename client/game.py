@@ -56,12 +56,18 @@ class Game(Player):
         b = 1
         self.alphabets = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
                         "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
-        self.buttons = []
-        for alphabet in self.alphabets:
-            self.buttons.append(tk.Button(root, text=alphabet,
-                                            command=lambda x=alphabet: self.guessButton(x), font=("Consolas", 25)))
-        for yc in range(0, 4):
-            for xc in range(0, 8):
+        self.buttons = [
+            tk.Button(
+                root,
+                text=alphabet,
+                command=lambda x=alphabet: self.guessButton(x),
+                font=("Consolas", 25),
+            )
+            for alphabet in self.alphabets
+        ]
+
+        for _ in range(4):
+            for _ in range(8):
                 if b <= 26:
                     self.buttons[b-1].place(x=x, y=y, width=50, height=50)
                     b += 1
@@ -103,10 +109,7 @@ class Game(Player):
         button.config(state=tk.DISABLED)
         button.config(bg="#e57076")
         print(self.guessedWord)
-        if "_" not in self.guessedWord:
-            for button in self.buttons:
-                button.config(state=tk.DISABLED)
-        elif self.tries == 0:
+        if "_" not in self.guessedWord or self.tries == 0:
             for button in self.buttons:
                 button.config(state=tk.DISABLED)
 
@@ -133,7 +136,7 @@ class Game(Player):
     def check_match(self):
         data = self.net.send("match||over")
         print(data)
-        data = True if data == "true" else False
+        data = data == "true"
         print(data)
         if data:
             if not self.matchEnd:
@@ -166,9 +169,10 @@ class Game(Player):
             lobby.checkMatch()
             root.mainloop()
         enemies = json.loads(enemies).values()
-        for enemy in enemies:
-            if enemy['id'] != self.id:
-                self.enemies.append(Enemy(**enemy))
+        self.enemies.extend(
+            Enemy(**enemy) for enemy in enemies if enemy['id'] != self.id
+        )
+
         x = 0
         for child in self.enemiesFrame.winfo_children():
             child.destroy()

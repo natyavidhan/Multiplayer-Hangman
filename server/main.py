@@ -17,12 +17,14 @@ class Match:
         self.wordlist = open("words.txt", "r").read().split("\n")
         self.over = False
         self.root = root
-        for player in self.players.keys():
+        for player in self.players:
             self.players[player]["word"] = self.assignWord()
             self.players[player]["guessed"] = []
             self.players[player]["finished"] = False
             self.players[player]["guessedWord"] = "".join(
-                ["_" for i in range(len(self.players[player]["word"]))])
+                ["_" for _ in range(len(self.players[player]["word"]))]
+            )
+
             self.players[player]["tries"] = 6
 
     def assignWord(self) -> str:
@@ -38,10 +40,7 @@ class Match:
                 player["tries"] -= 1
             player["guessedWord"] = ""
             for letter in player["word"]:
-                if letter in player["guessed"]:
-                    player["guessedWord"] += letter.upper()
-                else:
-                    player["guessedWord"] += "_"
+                player["guessedWord"] += letter.upper() if letter in player["guessed"] else "_"
                 player["guessedWord"] += " "
             if "_" not in player["guessedWord"]:
                 self.players[playerAddr]["finished"] = True
@@ -50,24 +49,21 @@ class Match:
         return self.players[playerAddr]
 
     def getplayer(self, playerAddr: str) -> dict:
-        player = self.players[playerAddr]
-        return player
+        return self.players[playerAddr]
 
     def getAll(self) -> dict:
         return self.players
 
     def getMatch(self) -> dict:
-        match = {}
-        match["players"] = self.players
-        match["start"] = self.start
-        return match
+        return {"players": self.players, "start": self.start}
 
     def check_match(self):
-        self.finished = []
-        for player in self.players.keys():
-            # print(player)
-            if self.players[player]["finished"]:
-                self.finished.append(player)
+        self.finished = [
+            player
+            for player in self.players.keys()
+            if self.players[player]["finished"]
+        ]
+
         if len(self.finished) == len(self.players):
             self.over = True
         self.root.after(100, self.check_match)
@@ -84,7 +80,7 @@ class Server:
         try:
             self.s.bind((self.server, self.port))
         except socket.error as e:
-            print(str(e))
+            print(e)
         self.s.listen(10)
 
         print("Waiting for a connection")
@@ -96,7 +92,7 @@ class Server:
         self.wordList = open("words.txt", "r").read().split("\n")
 
     def generateID(self) -> str:
-        return "".join(random.choice("0123456789ABCDEF") for i in range(5))
+        return "".join(random.choice("0123456789ABCDEF") for _ in range(5))
 
 
 class App(Server):
@@ -225,8 +221,7 @@ class App(Server):
             self.log("Match Stopped")
 
     def kickPlayer(self) -> None:
-        player = self.playerList.curselection()
-        if player:
+        if player := self.playerList.curselection():
             player = self.playerList.get(player)
             for addr in self.players.keys():
                 if self.players[addr]["name"]+"#"+self.players[addr]["id"] == player:
